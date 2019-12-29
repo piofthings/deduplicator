@@ -1,6 +1,11 @@
+#!/usr/bin/python3
+
 import os
 import zlib
+import sys, getopt
 
+inputfolder = ''
+outputfolder = ''
 
 def find_files(url, ext_list):
     result = []
@@ -42,28 +47,52 @@ def add_files_to_crc_dict(result_dict, file_list):
     return result_dict
 
 
-# Find all files in folder with file extension
-filename1 = "D:\\Google Drive"
-filename2 = "D:\\Google Photos"
-result1 = find_files(filename1, ["jpg", "jpeg", "png"])
-result2 = find_files(filename2, ["jpg", "jpeg", "png"])
+def doCompare(inputfolder):
+    # Find all files in folder with file extension
+    # filename1 = "D:\\Google Drive"
+    # filename2 = "D:\\Google Photos"
+    result1 = find_files(inputfolder, ["jpg", "jpeg", "png"])
+    # result2 = find_files(inputfolder, ["jpg", "jpeg", "png"])
 
-# Create CRC value for each file and add
-# it to the dictionary of combined files
-result_dict = dict()
-result_dict = add_files_to_crc_dict(result_dict, result1)
-result_dict = add_files_to_crc_dict(result_dict, result2)
+    # Create CRC value for each file and add
+    # it to the dictionary of combined files
+    result_dict = dict()
+    result_dict = add_files_to_crc_dict(result_dict, result1)
+    # result_dict = add_files_to_crc_dict(result_dict, result2)
 
-# Find duplicates
-duplcate_filesize = 0
-for key in result_dict:
-    num_files = len(result_dict[key])
-    if num_files > 1:
-        # Duplicate found
-        filesize = int(key.split(':')[-1])
-        duplcate_filesize += (filesize * (num_files - 1))
-        print(key, result_dict[key])
-        # os.rename("path/to/current/file.foo", "path/to/new/destination/for/file.foo")
+    # Find duplicates
+    duplcate_filesize = 0
+    for key in result_dict:
+        num_files = len(result_dict[key])
+        if num_files > 1:
+            # Duplicate found
+            filesize = int(key.split(':')[-1])
+            duplcate_filesize += (filesize * (num_files - 1))
+            print(key, result_dict[key])
+            # os.rename("path/to/current/file.foo", "path/to/new/destination/for/file.foo")
 
-# report how much diskspace will be saved
-print("{}MB".format((duplcate_filesize/1024)/1024))
+    # report how much diskspace will be saved
+    print("{}MB".format((duplcate_filesize/1024)/1024))
+
+
+def main(argv):
+
+   try:
+      opts, args = getopt.getopt(argv,"hi:o:",["ifile=","ofile="])
+   except getopt.GetoptError:
+      print ('duplicate_files.py -i <inputfile> -o <outputfile>')
+      sys.exit(2)
+   for opt, arg in opts:
+      if opt == '-h':
+         print ('duplicate_files.py -i <inputfile> -o <outputfile>')
+         sys.exit()
+      elif opt in ("-i", "--ifile"):
+         inputfolder = arg.strip()
+      elif opt in ("-o", "--ofile"):
+         outputfolder = arg.strip()
+   print ('Input folder is "', inputfolder)
+   print ('Output folder is "', outputfolder)
+   doCompare(inputfolder)
+
+if __name__ == "__main__":
+   main(sys.argv[1:])
