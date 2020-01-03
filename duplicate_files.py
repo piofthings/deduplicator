@@ -111,7 +111,11 @@ class Deduplicator:
         if(directory not in self.__dirCache):
             self.__dirCache[directory] = "True"
             pathlib.Path(directory).mkdir(parents=True, exist_ok=True) 
-        os.rename(file, newFileName) 
+        try:
+            os.rename(file, newFileName) 
+        except:
+            type, value, traceback = sys.exc_info()
+            logging.error('Error Details %s: %s %s' % (type, value, traceback))
 
     def move_duplicates(self, files):
         for file in files:
@@ -122,7 +126,11 @@ class Deduplicator:
             if(directory not in self.__dirCache):
                 self.__dirCache[directory] = "True"
                 pathlib.Path(directory).mkdir(parents=True, exist_ok=True) 
-            os.rename(file ,newFileName)
+            try:
+                os.rename(file, newFileName) 
+            except:
+                type, value, traceback = sys.exc_info()
+                logging.error('Error Details %s: %s %s' % (type, value, traceback))
 
 if __name__ == "__main__":
     dedup = Deduplicator(sys.argv[1:])
